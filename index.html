@@ -1,0 +1,455 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>کشاورزی</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:Tahoma,sans-serif;background:linear-gradient(160deg,#eaf5e0,#d6e8c4);min-height:100vh;padding:10px;display:flex;justify-content:center}
+  .app{width:100%;max-width:660px;background:#fffdf6;border-radius:24px;padding:16px 12px 20px;box-shadow:0 10px 30px rgba(0,0,0,.12);border:2px solid #fff}
+  .mt{position:fixed;top:14px;left:14px;z-index:100;width:46px;height:46px;border-radius:50%;background:#fffdf6;border:2px solid #b8d8a0;display:flex;align-items:center;justify-content:center;font-size:1.4rem;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+  .mt.playing{background:#c8e6a0;border-color:#5e9c3a}
+  .page{display:none}.page.active{display:block}
+  .hero{background:linear-gradient(160deg,#c8e6a0,#8ec468);border-radius:20px;padding:30px 20px 24px;text-align:center;margin-bottom:14px}
+  .hero-ill{font-size:4.5rem;margin-bottom:8px}
+  .hero-title{font-size:1.5rem;font-weight:bold;color:#1e3d10;margin-bottom:6px}
+  .hero-lesson{font-size:.85rem;color:#3a5a20;background:#fff8d8;display:inline-block;padding:4px 16px;border-radius:20px;font-weight:bold;margin-bottom:8px;border:1px solid #e0d080}
+  .hero-designer{font-size:.75rem;color:#3a4a2a;font-style:italic;background:rgba(255,255,255,.6);display:inline-block;padding:3px 14px;border-radius:20px}
+  .menu-btns{display:flex;flex-direction:column;gap:10px}
+  .menu-btn{display:flex;align-items:center;gap:14px;padding:18px 20px;border:none;border-radius:20px;font-family:inherit;font-size:1.05rem;font-weight:bold;cursor:pointer;text-align:right;transition:.12s}
+  .menu-btn .em{font-size:2rem}
+  .menu-btn .txt{display:flex;flex-direction:column;gap:2px}
+  .menu-btn .ttl{font-size:1.05rem}
+  .menu-btn .dsc{font-size:.75rem;font-weight:normal;opacity:.85}
+  .menu-btn .arr{margin-right:auto;font-size:1.3rem;opacity:.6}
+  .mb-s{background:linear-gradient(135deg,#f0fae0,#d4eeb8);color:#1e3d10;box-shadow:0 5px 0 #a8c888;border:2px solid #b8d8a0}
+  .mb-s:active{transform:translateY(4px);box-shadow:0 1px 0 #a8c888}
+  .mb-f{background:linear-gradient(135deg,#fdf0dc,#f5dcb8);color:#5a3a10;box-shadow:0 5px 0 #d4b888;border:2px solid #e6c9a8}
+  .mb-f:active{transform:translateY(4px);box-shadow:0 1px 0 #d4b888}
+  .ph{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:10px;border-bottom:2px dashed #c4d6b0}
+  .back{background:#f0f4e8;border:2px solid #c4d6b0;border-radius:12px;padding:8px 14px;font-family:inherit;font-size:.85rem;font-weight:bold;color:#2b5a1e;cursor:pointer;box-shadow:0 3px 0 #c4d6b0}
+  .back:active{transform:translateY(2px);box-shadow:0 1px 0 #c4d6b0}
+  .pt{font-size:1rem;font-weight:bold;color:#2b5a1e}
+  .defs{background:#eef7e3;border:2px solid #b8d8a0;border-radius:16px;padding:10px 12px;margin-bottom:14px;font-size:.8rem;color:#2b4a1a;line-height:1.7}
+  .defs b{color:#1e3d10}
+  .dr{display:flex;gap:6px;margin-bottom:4px}
+  .sbox{background:#f3fae9;border:2px solid #b8d8a0;border-radius:18px;padding:12px 10px;margin-bottom:14px}
+  .bt{font-size:.95rem;font-weight:bold;color:#2b5a1e;margin-bottom:10px}
+  .pl{font-size:.78rem;color:#6b7a5a;margin-bottom:4px;font-weight:bold}
+  .pool{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;min-height:50px;padding:8px 6px;background:#fff;border:2px dashed #c4d6b0;border-radius:14px;margin-bottom:12px}
+  .pool.empty::after{content:'✓ همه کارت‌ها دسته‌بندی شدند';color:#a0b88a;font-size:.78rem;align-self:center}
+  .card{padding:8px 12px;background:#fff;border:2px solid #c9b98a;border-radius:12px;font-size:.82rem;font-weight:bold;color:#4a3a1a;cursor:pointer;display:flex;align-items:center;gap:4px;box-shadow:0 3px 0 #d9c9a0;user-select:none}
+  .card:active{transform:translateY(2px);box-shadow:0 1px 0 #d9c9a0}
+  .card.selected{background:#fff2c4;border-color:#e6a800;box-shadow:0 0 0 3px #ffe27a,0 3px 0 #d9a000}
+  .szones{display:flex;gap:6px}
+  .szone{flex:1;border-radius:14px;padding:6px;min-height:110px;display:flex;flex-direction:column;cursor:pointer;border:3px solid transparent}
+  .zp{background:#e8f5dd;border-color:#b8d8a0}
+  .zc{background:#ddf0f8;border-color:#a8cfe0}
+  .zh{background:#fdeede;border-color:#e6c9a8}
+  .szone.active-target{border-color:#e6a800;background:#fff8dc}
+  .zhd{font-size:.75rem;font-weight:bold;text-align:center;margin-bottom:4px;padding:3px;border-radius:8px}
+  .zp .zhd{background:#c4e0a8;color:#1e3d10}
+  .zc .zhd{background:#b0d8e8;color:#103d52}
+  .zh .zhd{background:#f0d4b0;color:#5a3a10}
+  .zcards{display:flex;flex-direction:column;gap:4px;min-height:30px}
+  .zcards .card{font-size:.7rem;padding:5px 8px}
+  .zcards .card .um{margin-right:auto;font-size:.75rem;color:#a94442;background:#ffe0e0;border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-weight:bold}
+  .zp .zcards .card{border-color:#8ec46a;background:#f4ffe8}
+  .zc .zcards .card{border-color:#7ab8d4;background:#eef9ff}
+  .zh .zcards .card{border-color:#d4a86a;background:#fff8ee}
+  .msg{text-align:center;font-size:.8rem;font-weight:bold;margin-top:8px;min-height:20px;color:#2b5a1e}
+  .fbox{background:#fdf6ec;border:2px solid #e6cfa8;border-radius:18px;padding:12px 10px}
+  .dzones{display:flex;gap:6px}
+  .zone{flex:1;border-radius:14px;padding:6px;min-height:100px;display:flex;flex-direction:column;cursor:pointer;border:3px solid transparent}
+  .zn{background:#e8f5dd;border-color:#b8d8a0}
+  .zhu{background:#fdeede;border-color:#e6c9a8}
+  .zone.active-target{border-color:#e6a800;background:#fff8dc}
+  .zn .zhd{background:#c4e0a8;color:#1e3d10}
+  .zhu .zhd{background:#f0d4b0;color:#5a3a10}
+  .zn .zcards .card{border-color:#8ec46a;background:#f4ffe8}
+  .zhu .zcards .card{border-color:#d4a86a;background:#fff8ee}
+  .mr{display:block;width:100%;margin-top:8px;padding:8px;background:#ffe9b0;color:#7a5a1a;border:none;border-radius:12px;font-family:inherit;font-size:.8rem;font-weight:bold;cursor:pointer;box-shadow:0 3px 0 #d9bd75}
+  .mr:active{transform:translateY(2px);box-shadow:0 1px 0 #d9bd75}
+  .fc{text-align:center;font-size:.7rem;color:#a09880;margin-top:16px;padding-top:10px;border-top:1px dashed #ddd5c0}
+  .fc b{color:#7a6a4a}
+</style>
+</head>
+<body>
+<div class="mt" id="mt">🎵</div>
+<div class="app">
+
+  <div class="page active" id="pHome">
+    <div class="hero">
+      <div class="hero-ill">👨‍🌾🌾</div>
+      <div class="hero-title">کشاورزی</div>
+      <div class="hero-lesson">درس پنجم مطالعات اجتماعی ششم</div>
+      <div class="hero-designer">✏️ طراح: سارا اقدامی مقدم</div>
+    </div>
+    <div class="menu-btns">
+      <button class="menu-btn mb-s" id="btnStages">
+        <span class="em">🌱</span>
+        <span class="txt"><span class="ttl">مراحل کشاورزی</span><span class="dsc">کاشت، داشت، برداشت</span></span>
+        <span class="arr">◀</span>
+      </button>
+      <button class="menu-btn mb-f" id="btnFactors">
+        <span class="em">🌍</span>
+        <span class="txt"><span class="ttl">عوامل موثر در کشاورزی</span><span class="dsc">طبیعی و انسانی</span></span>
+        <span class="arr">◀</span>
+      </button>
+    </div>
+    <div class="fc">طراحی شده توسط <b>سارا اقدامی مقدم</b></div>
+  </div>
+
+  <div class="page" id="pStages">
+    <div class="ph">
+      <button class="back" id="backS">▶ بازگشت</button>
+      <div class="pt">🌱 مراحل کشاورزی</div>
+    </div>
+    <div class="defs">
+      <div class="dr"><span>🌱</span><span><b>کاشت:</b> آماده‌سازی زمین و قرار دادن بذر یا نشا در خاک.</span></div>
+      <div class="dr"><span>💧</span><span><b>داشت:</b> مراقبت از گیاه مثل آبیاری، کوددهی و وجین کردن.</span></div>
+      <div class="dr"><span>🌾</span><span><b>برداشت:</b> جمع‌آوری محصول رسیده از مزرعه.</span></div>
+    </div>
+    <div class="sbox">
+      <div class="bt">🔎 هر فعالیت مربوط به کدام مرحله است؟</div>
+      <div class="pl">کارت را انتخاب کن و روی ستون درست بزن:</div>
+      <div class="pool" id="stagePool"></div>
+      <div class="szones">
+        <div class="szone zp" id="zPlant" data-stage="plant">
+          <div class="zhd">🌱 کاشت</div>
+          <div class="zcards" id="zPlantCards"></div>
+        </div>
+        <div class="szone zc" id="zCare" data-stage="care">
+          <div class="zhd">💧 داشت</div>
+          <div class="zcards" id="zCareCards"></div>
+        </div>
+        <div class="szone zh" id="zHarvest" data-stage="harvest">
+          <div class="zhd">🌾 برداشت</div>
+          <div class="zcards" id="zHarvestCards"></div>
+        </div>
+      </div>
+      <div class="msg" id="stageMsg">یک کارت را انتخاب کن، سپس روی ستون درست بزن</div>
+      <button class="mr" id="resetS">↺ شروع دوباره مراحل</button>
+    </div>
+  </div>
+
+  <div class="page" id="pFactors">
+    <div class="ph">
+      <button class="back" id="backF">▶ بازگشت</button>
+      <div class="pt">🌍 عوامل موثر در کشاورزی</div>
+    </div>
+    <div class="fbox">
+      <div class="bt">🌍 عوامل موثر را دسته‌بندی کن</div>
+      <div class="pl">کارت را انتخاب کن و روی دسته درست بزن:</div>
+      <div class="pool" id="factorPool"></div>
+      <div class="dzones">
+        <div class="zone zn" id="zNat" data-type="natural">
+          <div class="zhd">🌍 عوامل طبیعی</div>
+          <div class="zcards" id="zNatCards"></div>
+        </div>
+        <div class="zone zhu" id="zHum" data-type="human">
+          <div class="zhd">👨‍🌾 عوامل انسانی</div>
+          <div class="zcards" id="zHumCards"></div>
+        </div>
+      </div>
+      <div class="msg" id="factorMsg">یک کارت را انتخاب کن، سپس روی دسته درست بزن</div>
+      <button class="mr" id="resetF">↺ شروع دوباره عوامل</button>
+    </div>
+    <div class="fc">طراحی شده توسط <b>سارا اقدامی مقدم</b></div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ===== موسیقی =====
+  var audioCtx=null, musicPlaying=false, musicTimer=null;
+  var mt=document.getElementById('mt');
+  var notes=[261.63,293.66,329.63,392.00,440.00,392.00,329.63,293.66,261.63,220.00,246.94,293.66,329.63,392.00,440.00];
+
+  function softNote(freq,st,dur){
+    if(!audioCtx)return;
+    var o=audioCtx.createOscillator(),g=audioCtx.createGain();
+    o.type='sine';o.frequency.value=freq;
+    g.gain.setValueAtTime(0,st);
+    g.gain.linearRampToValueAtTime(0.035,st+0.8);
+    g.gain.setValueAtTime(0.035,st+dur-0.8);
+    g.gain.linearRampToValueAtTime(0,st+dur);
+    o.connect(g);g.connect(audioCtx.destination);
+    o.start(st);o.stop(st+dur);
+  }
+
+  function schedule(){
+    if(!audioCtx||!musicPlaying)return;
+    var now=audioCtx.currentTime,nd=2.4;
+    notes.forEach(function(f,i){
+      var st=now+i*nd;
+      if(i%3===0||i%5===1)softNote(f,st,nd*1.1);
+      if(i%4===2)softNote(f/2,st,nd*1.3);
+    });
+    musicTimer=setTimeout(function(){if(musicPlaying)schedule();},notes.length*nd*1000);
+  }
+
+  mt.addEventListener('click',function(){
+    if(musicPlaying){
+      musicPlaying=false;
+      if(musicTimer){clearTimeout(musicTimer);musicTimer=null;}
+      mt.classList.remove('playing');mt.textContent='🎵';
+      if(audioCtx){audioCtx.close();audioCtx=null;}
+    }else{
+      try{if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){return;}
+      var go=function(){musicPlaying=true;mt.classList.add('playing');mt.textContent='🎶';schedule();};
+      if(audioCtx.state==='suspended'){audioCtx.resume().then(go).catch(function(){});}
+      else{go();}
+    }
+  });
+
+  // ===== ناوبری =====
+  var pHome=document.getElementById('pHome');
+  var pStages=document.getElementById('pStages');
+  var pFactors=document.getElementById('pFactors');
+
+  function show(p){
+    pHome.classList.remove('active');
+    pStages.classList.remove('active');
+    pFactors.classList.remove('active');
+    p.classList.add('active');
+    window.scrollTo(0,0);
+  }
+
+  document.getElementById('btnStages').onclick=function(){show(pStages);};
+  document.getElementById('btnFactors').onclick=function(){show(pFactors);};
+  document.getElementById('backS').onclick=function(){show(pHome);};
+  document.getElementById('backF').onclick=function(){show(pHome);};
+
+  // ===== داده‌ها =====
+  var sE={seed:'🌰',plow:'🚜',transplant:'🌱',water:'💧',fertilize:'🧪',weed:'🌿',prune:'✂️',reap:'🌾',pick:'🍎'};
+  var sL={seed:'کاشتن بذر',plow:'شخم زدن زمین',transplant:'نشا کاری',water:'آبیاری کردن',fertilize:'کود دادن',weed:'وجین کردن',prune:'هرس کردن',reap:'درو کردن',pick:'چیدن میوه'};
+  var sOf={seed:'plant',plow:'plant',transplant:'plant',water:'care',fertilize:'care',weed:'care',prune:'care',reap:'harvest',pick:'harvest'};
+
+  var stagePool=document.getElementById('stagePool');
+  var zPlant=document.getElementById('zPlant'),zCare=document.getElementById('zCare'),zHarvest=document.getElementById('zHarvest');
+  var zPlantC=document.getElementById('zPlantCards'),zCareC=document.getElementById('zCareCards'),zHarvestC=document.getElementById('zHarvestCards');
+  var stageMsg=document.getElementById('stageMsg');
+
+  var fL={soil:'خاک',water:'آب',weather:'هوا',labor:'نیروی کار',capital:'سرمایه',tools:'ابزار و وسایل',materials:'مواد (بذر، کود، سم)'};
+  var fE={soil:'🪨',water:'💧',weather:'☀️',labor:'👨‍🌾',capital:'💰',tools:'🔧',materials:'🧺'};
+  var fT={soil:'natural',water:'natural',weather:'natural',labor:'human',capital:'human',tools:'human',materials:'human'};
+
+  var factorPool=document.getElementById('factorPool');
+  var zNat=document.getElementById('zNat'),zHum=document.getElementById('zHum');
+  var zNatC=document.getElementById('zNatCards'),zHumC=document.getElementById('zHumCards');
+  var factorMsg=document.getElementById('factorMsg');
+
+  var selStage=null, selFactor=null;
+
+  // ===== کمکی =====
+  function clearStage(){
+    if(selStage){selStage.classList.remove('selected');selStage=null;}
+    zPlant.classList.remove('active-target');
+    zCare.classList.remove('active-target');
+    zHarvest.classList.remove('active-target');
+  }
+  function clearFactor(){
+    if(selFactor){selFactor.classList.remove('selected');selFactor=null;}
+    zNat.classList.remove('active-target');
+    zHum.classList.remove('active-target');
+  }
+  function updStagePool(){
+    if(stagePool.querySelectorAll('.card').length===0)stagePool.classList.add('empty');
+    else stagePool.classList.remove('empty');
+  }
+  function updFactorPool(){
+    if(factorPool.querySelectorAll('.card').length===0)factorPool.classList.add('empty');
+    else factorPool.classList.remove('empty');
+  }
+
+  // ===== مراحل =====
+  function addStageToPool(id){
+    var c=document.createElement('div');
+    c.className='card';
+    c.dataset.activity=id;
+    c.dataset.stage=sOf[id];
+    c.textContent=sE[id]+' '+sL[id];
+    c.onclick=function(){selStageCard(c);};
+    stagePool.appendChild(c);
+  }
+
+  function makeStageInZone(id){
+    var c=document.createElement('div');
+    c.className='card';
+    c.dataset.activity=id;
+    c.dataset.stage=sOf[id];
+    c.innerHTML=sE[id]+' '+sL[id]+' <span class="um" title="برگرداندن">↺</span>';
+    c.querySelector('.um').onclick=function(e){
+      e.stopPropagation();
+      c.remove();
+      addStageToPool(id);
+      updStagePool();
+      stageMsg.textContent='کارت برگشت. دوباره تلاش کن!';
+      stageMsg.style.color='#7a5a1a';
+    };
+    return c;
+  }
+
+  function selStageCard(c){
+    if(c.closest('.szone'))return;
+    if(selStage)selStage.classList.remove('selected');
+    if(selStage===c){
+      clearStage();
+      stageMsg.textContent='یک کارت را انتخاب کن، سپس روی ستون درست بزن';
+      stageMsg.style.color='#2b5a1e';
+      return;
+    }
+    selStage=c;
+    c.classList.add('selected');
+    zPlant.classList.add('active-target');
+    zCare.classList.add('active-target');
+    zHarvest.classList.add('active-target');
+    stageMsg.textContent='حالا روی ستون درست بزن';
+    stageMsg.style.color='#7a5a1a';
+  }
+
+  function dropStage(zoneCards,targetStage,zoneName,e){
+    if(!selStage){
+      stageMsg.textContent='اول یک کارت از مخزن انتخاب کن';
+      stageMsg.style.color='#7a5a1a';
+      return;
+    }
+    if(e.target.closest('.zcards .card'))return;
+    var id=selStage.dataset.activity;
+    if(sOf[id]!==targetStage){
+      stageMsg.textContent='❌ این فعالیت مربوط به این مرحله نیست!';
+      stageMsg.style.color='#a13d3d';
+      return;
+    }
+    selStage.remove();
+    zoneCards.appendChild(makeStageInZone(id));
+    clearStage();
+    updStagePool();
+    stageMsg.textContent='✅ «'+sL[id]+'» در «'+zoneName+'» قرار گرفت.';
+    stageMsg.style.color='#2b7a0b';
+    var total=zPlantC.querySelectorAll('.card').length+zCareC.querySelectorAll('.card').length+zHarvestC.querySelectorAll('.card').length;
+    if(total===9){
+      stageMsg.textContent='🎉 آفرین! همه فعالیت‌ها درست دسته‌بندی شدند.';
+      stageMsg.style.color='#2b7a0b';
+    }
+  }
+
+  zPlant.addEventListener('click',function(e){dropStage(zPlantC,'plant','کاشت',e);});
+  zCare.addEventListener('click',function(e){dropStage(zCareC,'care','داشت',e);});
+  zHarvest.addEventListener('click',function(e){dropStage(zHarvestC,'harvest','برداشت',e);});
+
+  // ===== عوامل =====
+  function addFactorToPool(id){
+    var c=document.createElement('div');
+    c.className='card';
+    c.dataset.factor=id;
+    c.dataset.type=fT[id];
+    c.textContent=fE[id]+' '+fL[id];
+    c.onclick=function(){selFactorCard(c);};
+    factorPool.appendChild(c);
+  }
+
+  function makeFactorInZone(id){
+    var c=document.createElement('div');
+    c.className='card';
+    c.dataset.factor=id;
+    c.dataset.type=fT[id];
+    c.innerHTML=fE[id]+' '+fL[id]+' <span class="um" title="برگرداندن">↺</span>';
+    c.querySelector('.um').onclick=function(e){
+      e.stopPropagation();
+      c.remove();
+      addFactorToPool(id);
+      updFactorPool();
+      factorMsg.textContent='کارت برگشت. دوباره تلاش کن!';
+      factorMsg.style.color='#7a5a1a';
+    };
+    return c;
+  }
+
+  function selFactorCard(c){
+    if(c.closest('.zone'))return;
+    if(selFactor)selFactor.classList.remove('selected');
+    if(selFactor===c){
+      clearFactor();
+      factorMsg.textContent='یک کارت را انتخاب کن، سپس روی دسته درست بزن';
+      factorMsg.style.color='#2b5a1e';
+      return;
+    }
+    selFactor=c;
+    c.classList.add('selected');
+    zNat.classList.add('active-target');
+    zHum.classList.add('active-target');
+    factorMsg.textContent='حالا روی دسته درست بزن';
+    factorMsg.style.color='#7a5a1a';
+  }
+
+  function dropFactor(zoneCards,targetType,zoneName,e){
+    if(!selFactor){
+      factorMsg.textContent='اول یک کارت از مخزن انتخاب کن';
+      factorMsg.style.color='#7a5a1a';
+      return;
+    }
+    if(e.target.closest('.zcards .card'))return;
+    var id=selFactor.dataset.factor;
+    if(fT[id]!==targetType){
+      factorMsg.textContent='❌ این کارت متعلق به این دسته نیست!';
+      factorMsg.style.color='#a13d3d';
+      return;
+    }
+    selFactor.remove();
+    zoneCards.appendChild(makeFactorInZone(id));
+    clearFactor();
+    updFactorPool();
+    factorMsg.textContent='✅ «'+fL[id]+'» در '+zoneName+' قرار گرفت.';
+    factorMsg.style.color='#2b7a0b';
+    var total=zNatC.querySelectorAll('.card').length+zHumC.querySelectorAll('.card').length;
+    if(total===7){
+      factorMsg.textContent='🎉 آفرین! همه عوامل درست دسته‌بندی شدند.';
+      factorMsg.style.color='#2b7a0b';
+    }
+  }
+
+  zNat.addEventListener('click',function(e){dropFactor(zNatC,'natural','عوامل طبیعی',e);});
+  zHum.addEventListener('click',function(e){dropFactor(zHumC,'human','عوامل انسانی',e);});
+
+  // ===== ریست =====
+  function resetStages(){
+    zPlantC.innerHTML='';
+    zCareC.innerHTML='';
+    zHarvestC.innerHTML='';
+    stagePool.innerHTML='';
+    var ids=['reap','seed','water','prune','pick','plow','fertilize','transplant','weed'];
+    ids.forEach(function(id){addStageToPool(id);});
+    updStagePool();
+    clearStage();
+    stageMsg.textContent='یک کارت را انتخاب کن، سپس روی ستون درست بزن';
+    stageMsg.style.color='#2b5a1e';
+  }
+
+  function resetFactors(){
+    zNatC.innerHTML='';
+    zHumC.innerHTML='';
+    factorPool.innerHTML='';
+    var ids=['labor','soil','tools','water','materials','weather','capital'];
+    ids.forEach(function(id){addFactorToPool(id);});
+    updFactorPool();
+    clearFactor();
+    factorMsg.textContent='یک کارت را انتخاب کن، سپس روی دسته درست بزن';
+    factorMsg.style.color='#2b5a1e';
+  }
+
+  document.getElementById('resetS').onclick=resetStages;
+  document.getElementById('resetF').onclick=resetFactors;
+
+  // شروع
+  resetStages();
+  resetFactors();
+})();
+</script>
+</body>
+</html>
